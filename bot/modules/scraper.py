@@ -1,8 +1,9 @@
-from re import match as rematch, findall, sub as resub
-from time import sleep
 import cloudscraper
+from re import match as rematch, findall, sub as resub
+from asyncio import sleep as asleep
+from time import sleep
 from urllib.parse import urlparse
-from requests import get as rget
+from requests import get as rget, head as rhead
 from bs4 import BeautifulSoup, NavigableString, Tag
 
 from telegram import Message
@@ -57,7 +58,7 @@ def scrapper(update, context):
             sendMessage(gd_txt, context.bot, update.message)
     elif "htpmovies" in link and "/exit.php" in link:
         sent = sendMessage('Running scrape. Wait about some secs.', context.bot, update.message)
-        prsd = htpmovies(link)
+        prsd = "    " + htpmovies(link)
         editMessage(prsd, sent)
     elif "htpmovies" in link:
         sent = sendMessage('Running scrape. Wait about some secs.', context.bot, update.message)
@@ -68,16 +69,16 @@ def scrapper(update, context):
         x = soup.select('a[href^="/exit.php?url="]')
         for a in x:
             links.append(a['href'])
-        for o in links:
+            prsd = f"Total Links Found : {len(links)}\n\n"
+        editMessage(prsd, sent)
+        for pg, o in enumerate(links,  start=1):
             url = f"https://htpmovies.lol"+o
-            prsd += htpmovies(url) + '\n\n'
+            prsd += f"{pg}. {htpmovies(url)}\n\n"
+            editMessage(prsd, sent)
+            asleep(5)
             if len(prsd) > 4000:
-                deleteMessage(context.bot, sent)
-                sendMessage(prsd, context.bot, update.message)
+                sent = sendMessage("Scrapping...", context.bot, update.message)
                 prsd = ""
-        if prsd != "":
-            deleteMessage(context.bot, sent)
-            sendMessage(prsd, context.bot, update.message)
     elif "cinevood" in link:
         prsd = ""
         links = []
@@ -87,7 +88,11 @@ def scrapper(update, context):
         for a in x:
             links.append(a['href'])
         for o in links:
-            prsd += o + '\n\n'
+            res = rget(o)
+            soup = BeautifulSoup(res.content, "html.parser")
+            title = soup.title.string
+            reftxt = resub(r'Kolop \| ', '', title)
+            prsd += f'{reftxt}\n{o}\n\n'
             if len(prsd) > 4000:
                 sendMessage(prsd, context.bot, update.message)
                 prsd = ""
@@ -119,10 +124,12 @@ def scrapper(update, context):
             sendMessage(txt, context.bot, update.message)
 
 def htpmovies(link):
-    download = rget(link, stream=True, allow_redirects=False) 
-    xurl =download.headers["location"]   
+    if link.startswith("https://htpmovies.lol/"):
+        r = rhead(link, allow_redirects=True)
+        url = r.url  
     client = cloudscraper.create_scraper(allow_brotli=False)
-    param = xurl.split("/")[-1]
+    j = url.split('?token=')[-1]
+    param = j.replace('&m=1','')
     DOMAIN = "https://go.kinemaster.cc"
     final_url = f"{DOMAIN}/{param}"
     resp = client.get(final_url)
@@ -133,9 +140,28 @@ def htpmovies(link):
     h = { "x-requested-with": "XMLHttpRequest" }
     sleep(10)
     r = client.post(f"{DOMAIN}/links/go", data=data, headers=h)
+    final = r.json()['url']
+    p = rget(final)
+    soup = BeautifulSoup(p.content, "html.parser")
+    ss = soup.select("li.list-group-item")
+    li = []
+    for item in ss:
+        li.append(item.string)
+    try: reftxt = resub(r'www\S+ \- ', '', li[0])
+    except IndexError:
+        LOGGER.info(p.text)
+        asleep(5)
+        p = rget(final)
+        soup = BeautifulSoup(p.content, "html.parser")
+        ss = soup.select("li.list-group-item")
+        li = []
+        for item in ss:
+            li.append(item.string)
+        reftxt = resub(r'www\S+ \- ', '', li[0])
+    
     try:
-        return r.json()['url']
-    except: return "Something went wrong :("
+        return f'{reftxt}\n    {li[2]}\n    Link : {final}'
+    except: return "Something went Wrong !!"
         
 srp_handler = CommandHandler(BotCommands.ScrapeCommand, scrapper,
 
