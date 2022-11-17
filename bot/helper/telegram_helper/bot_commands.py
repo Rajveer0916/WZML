@@ -44,7 +44,9 @@ class _BotCommands:
         self.RmPaidCommand = getCommand('RMPAID_COMMAND', f'rmpaid{CMD_INDEX}')
         self.PreNameCommand = getCommand('PRENAME_COMMAND', f'prefix{CMD_INDEX}')
         self.CaptionCommand = getCommand('CAPTION_COMMAND', f'caption{CMD_INDEX}')
+        self.SufNameCommand = getCommand('SUFFIX_COMMAND', f'suffix{CMD_INDEX}')
         self.UserLogCommand = getCommand('DUMPID_COMMAND', f'dumpid{CMD_INDEX}')
+        self.RemnameCommand = getCommand('REMNAME_COMMAND', f'remname{CMD_INDEX}')
         self.UnAuthorizeCommand = f'unauthorize{CMD_INDEX}'
         self.AddSudoCommand = f'addsudo{CMD_INDEX}'
         self.RmSudoCommand = f'rmsudo{CMD_INDEX}'
