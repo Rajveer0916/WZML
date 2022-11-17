@@ -243,6 +243,10 @@ help_string_telegraph_user = f'''
 <br><br>
 • <b>/{BotCommands.PreNameCommand}</b>: Set Prename to leech files
 <br><br>
+• <b>/{BotCommands.SufNameCommand}</b>: Set Suffix to leech files
+<br><br>
+• <b>/{BotCommands.RemnameCommand}</b>: Remove Specific Words from filename
+<br><br>
 • <b>/{BotCommands.CaptionCommand}</b>: Set Caption for leech files
 <br><br>
 • <b>/{BotCommands.UserLogCommand}</b>: Add Dump Channel for leech files. make sure bot should an admin in dump channel.
@@ -277,9 +281,14 @@ help_string_telegraph_user = f'''
 <br><br>
 '''
 
-help_user = telegraph.create_page(
-    title=f"{TITLE_NAME} Help",
-    content=help_string_telegraph_user)["path"]
+try:
+    help_user = telegraph.create_page(
+        title=f'{TITLE_NAME} HELP',
+        content=help_string_telegraph_user,
+    )["path"]
+except Exception as err:
+    LOGGER.warning(f"Telegraph Error: {err}")
+
 
 help_string_telegraph_admin = f'''
 <b><u>🛡️ Admin Commands</u></b>
@@ -307,10 +316,13 @@ help_string_telegraph_admin = f'''
 • <b>/{BotCommands.LogCommand}</b>: Get a log file of the bot. Handy for getting crash reports
 '''
 
-help_admin = telegraph.create_page(
-    title=f"{TITLE_NAME} Help",
-    content=help_string_telegraph_admin)["path"]
-
+try:
+    help_admin = telegraph.create_page(
+        title=f'{TITLE_NAME} HELP',
+        content=help_string_telegraph_admin,
+    )["path"]
+except Exception as err:
+    LOGGER.warning(f"Telegraph Error: {err}")
 
 def bot_help(update, context):
     button = ButtonMaker()
@@ -343,7 +355,9 @@ if SET_BOT_COMMANDS:
         (f'{BotCommands.LeechWatchCommand}','Leech yt-dlp supported link'),
         (f'{BotCommands.LeechZipWatchCommand}','Leech yt-dlp supported link as zip'),
         (f'{BotCommands.PreNameCommand}','Set Prename for Leech Files'),
+        (f'{BotCommands.SufNameCommand}','Set Suffix for Leech Files'),
         (f'{BotCommands.CaptionCommand}','Set Caption for Leech Files'),
+        (f'{BotCommands.RemnameCommand}','Remove Specific words from filename'),
         (f'{BotCommands.UserLogCommand}','Set Dump Channel for Leech Files'),
         (f'{BotCommands.ScrapeCommand}','Scrape Links from Website'),
         (f'{BotCommands.CountCommand}','Count file/folder of Drive'),
