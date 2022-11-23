@@ -15,7 +15,16 @@ from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.html_helper import html_template
 from bot.helper.telegram_helper import button_build
 
-PLUGINS = []
+if config_dict['SEARCH_PLUGINS'] is not None:
+    PLUGINS = []
+    qbclient = get_client()
+    qb_plugins = qbclient.config_dict['SEARCH_PLUGINS']()
+    if qb_plugins:
+        for plugin in qb_plugins:
+            qbclient.search_uninstall_plugin(names=plugin['name'])
+    qbclient.search_install_plugin(config_dict['SEARCH_PLUGINS'])
+    qbclient.auth_log_out()
+
 SITES = {
     "1337x": "1337x",
     "yts": "YTS",
@@ -35,30 +44,19 @@ SITES = {
     "ybt": "YourBittorrent",
     "all": "All"
 }
-TELEGRAPH_LIMIT = 300
 
+TELEGRAPH_LIMIT = 99999999
 
-def initiate_search_tools():
-    if SEARCH_PLUGINS := config_dict['SEARCH_PLUGINS']:
-        globals()['PLUGINS'] = []
-        src_plugins = jsonloads(SEARCH_PLUGINS)
-        qbclient = get_client()
-        qb_plugins = qbclient.search_plugins()
-        if qb_plugins:
-            for plugin in qb_plugins:
-                qbclient.search_uninstall_plugin(names=plugin['name'])
-        qbclient.search_install_plugin(src_plugins)
-        qbclient.auth_log_out()
-
-    if SEARCH_API_LINK := config_dict['SEARCH_API_LINK']:
-        global SITES
-        try:
-            res = rget(f'{SEARCH_API_LINK}/api/v1/sites').json()
-            SITES = {str(site): str(site).capitalize() for site in res['supported_sites']}
-            SITES['all'] = 'All'
-        except Exception as e:
-            LOGGER.error("Can't fetching sites from SEARCH_API_LINK make sure use latest version of API")
-            SITES = None
+if config_dict['SEARCH_API_LINK']:
+    try:
+        res = rget(f'{config_dict['SEARCH_API_LINK']}/api/v1/sites').json()
+        SITES = {str(site): str(site).capitalize() for site in res['supported_sites']}
+        SITES['all'] = 'All'
+    except Exception as e:
+        LOGGER.error("Can't fetching sites from config_dict['SEARCH_API_LINK'] make sure use latest version of API")
+        SITES = None
+else:
+    SITES = None
 
 def torser(update, context):
     user_id = update.message.from_user.id
@@ -73,7 +71,7 @@ def torser(update, context):
         buttons.sbutton("Cancel", f"torser {user_id} cancel")
         button = buttons.build_menu(2)
         sendMarkup("Send a search key along with command", context.bot, update.message, button)
-    elif SITES is not None and SEARCH_PLUGINS is not None:
+    elif SITES is not None and config_dict['SEARCH_PLUGINS'] is not None:
         buttons.sbutton('Api', f"torser {user_id} apisearch")
         buttons.sbutton('Plugins', f"torser {user_id} plugin")
         buttons.sbutton("Cancel", f"torser {user_id} cancel")
@@ -130,21 +128,21 @@ def _search(bot, key, site, message, method):
             if method == 'apisearch':
                 LOGGER.info(f"API Searching: {key} from {site}")
                 if site == 'all':
-                    api = f"{SEARCH_API_LINK}/api/v1/all/search?query={key}&limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/all/search?query={key}&limit={config_dict['SEARCH_LIMIT']}"
                 else:
-                    api = f"{SEARCH_API_LINK}/api/v1/search?site={site}&query={key}&limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/search?site={site}&query={key}&limit={config_dict['SEARCH_LIMIT']}"
             elif method == 'apitrend':
                 LOGGER.info(f"API Trending from {site}")
                 if site == 'all':
-                    api = f"{SEARCH_API_LINK}/api/v1/all/trending?limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/all/trending?limit={config_dict['SEARCH_LIMIT']}"
                 else:
-                    api = f"{SEARCH_API_LINK}/api/v1/trending?site={site}&limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/trending?site={site}&limit={config_dict['SEARCH_LIMIT']}"
             elif method == 'apirecent':
                 LOGGER.info(f"API Recent from {site}")
                 if site == 'all':
-                    api = f"{SEARCH_API_LINK}/api/v1/all/recent?limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/all/recent?limit={config_dict['SEARCH_LIMIT']}"
                 else:
-                    api = f"{SEARCH_API_LINK}/api/v1/recent?site={site}&limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/recent?site={site}&limit={config_dict['SEARCH_LIMIT']}"
             try:
                 resp = rget(api)
                 search_results = resp.json()
@@ -193,21 +191,21 @@ def _search(bot, key, site, message, method):
             if method == 'apisearch':
                 LOGGER.info(f"API Searching: {key} from {site}")
                 if site == 'all':
-                    api = f"{SEARCH_API_LINK}/api/v1/all/search?query={key}&limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/all/search?query={key}&limit={config_dict['SEARCH_LIMIT']}"
                 else:
-                    api = f"{SEARCH_API_LINK}/api/v1/search?site={site}&query={key}&limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/search?site={site}&query={key}&limit={config_dict['SEARCH_LIMIT']}"
             elif method == 'apitrend':
                 LOGGER.info(f"API Trending from {site}")
                 if site == 'all':
-                    api = f"{SEARCH_API_LINK}/api/v1/all/trending?limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/all/trending?limit={config_dict['SEARCH_LIMIT']}"
                 else:
-                    api = f"{SEARCH_API_LINK}/api/v1/trending?site={site}&limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/trending?site={site}&limit={config_dict['SEARCH_LIMIT']}"
             elif method == 'apirecent':
                 LOGGER.info(f"API Recent from {site}")
                 if site == 'all':
-                    api = f"{SEARCH_API_LINK}/api/v1/all/recent?limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/all/recent?limit={config_dict['SEARCH_LIMIT']}"
                 else:
-                    api = f"{SEARCH_API_LINK}/api/v1/recent?site={site}&limit={SEARCH_LIMIT}"
+                    api = f"{config_dict['SEARCH_API_LINK']}/api/v1/recent?site={site}&limit={config_dict['SEARCH_LIMIT']}"
             try:
                 resp = rget(api)
                 search_results = resp.json()
@@ -304,7 +302,7 @@ def _getResult(search_results, key, message, method):
 
         editMessage(f"<b>Creating</b> {len(telegraph_content)} <b>Telegraph pages.</b>", message)
         path = [telegraph.create_page(
-                    title=f"{TITLE_NAME}",
+                    title=f"{config_dict['TITLE_NAME']}",
                     content=content
                 )["path"] for content in telegraph_content]
         sleep(0.5)
@@ -377,7 +375,7 @@ def _plugin_buttons(user_id):
     buttons = button_build.ButtonMaker()
     if not PLUGINS:
         qbclient = get_client()
-        pl = qbclient.search_plugins()
+        pl = qbclient.config_dict['SEARCH_PLUGINS']()
         for name in pl:
             PLUGINS.append(name['name'])
         qbclient.auth_log_out()
