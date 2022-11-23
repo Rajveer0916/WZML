@@ -641,7 +641,7 @@ def load_config():
                         'BUTTON_FIVE_NAME': BUTTON_FIVE_NAME,
                         'BUTTON_FIVE_URL': BUTTON_FIVE_URL,
                         'BUTTON_SIX_NAME': BUTTON_SIX_NAME,
-                        'BUTTON_SIX_URL': TELEGRAPH_STYLE,
+                        'BUTTON_SIX_URL': BUTTON_SIX_URL,
                         'WEB_PINCODE': WEB_PINCODE,
                         'YT_DLP_QUALITY': YT_DLP_QUALITY})
 
