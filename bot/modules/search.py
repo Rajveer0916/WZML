@@ -162,7 +162,7 @@ def __search(bot, key, site, message, method):
                 return editMessage(f"No result found for <i>{key}</i>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
             msg = f"<b>Found {min(total_results, TELEGRAPH_LIMIT)}</b>"
             msg += f" <b>result(s) for <i>{key}</i>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
-        link = _getResult(search_results, key, message, method)
+        link = __getResult(search_results, key, message, method)
         buttons = button_build.ButtonMaker()
         buttons.buildbutton("🔎 VIEW", link)
         button = buttons.build_menu(1)
