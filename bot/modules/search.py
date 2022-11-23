@@ -17,6 +17,7 @@ from bot.helper.telegram_helper import button_build
 
 PLUGINS = []
 SITES = None
+TELEGRAPH_LIMIT = 300
 
 
 def initiate_search_tools():
