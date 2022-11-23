@@ -289,11 +289,8 @@ def __getResult(search_results, key, message, method):
             telegraph_content.append(msg)
 
         editMessage(f"<b>Creating</b> {len(telegraph_content)} <b>Telegraph pages.</b>", message)
-        path = [telegraph.create_page(
-                    title=f"{config_dict['TITLE_NAME']}",
-                    content=content
-                )["path"] for content in telegraph_content]
-        sleep(0.5)
+        path = [telegraph.create_page(title='Mirror-leech-bot Torrent Search',
+                                      content=content)["path"] for content in telegraph_content]
         if len(path) > 1:
             editMessage(f"<b>Editing</b> {len(telegraph_content)} <b>Telegraph pages.</b>", message)
             telegraph.edit_telegraph(path, telegraph_content)
