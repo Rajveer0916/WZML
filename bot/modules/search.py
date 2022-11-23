@@ -228,7 +228,7 @@ def __search(bot, key, site, message, method):
                 return editMessage(f"No result found for <i>{key}</i>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
             cap = f"<b>Found {total_results}</b>"
             cap += f" <b>results for <i>{key}</i>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
-        hmsg = _getResult(search_results, key, message, method)
+        hmsg = __getResult(search_results, key, message, method)
         name = f"{method}_{key}_{site}_{message.message_id}.html"
         with open(name, "w", encoding='utf-8') as f:
             f.write(html_template.replace('{msg}', hmsg).replace('{title}', f'{method}_{key}_{site}'))
