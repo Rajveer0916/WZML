@@ -107,7 +107,7 @@ def torserbut(update, context):
         editMessage("Search has been canceled!", message)
 
 def _search(bot, key, site, message, method):
-    if TELEGRAPH_STYLE is True:
+    if config_dict['TELEGRAPH_STYLE'] is True:
         if method.startswith('api'):
             if method == 'apisearch':
                 LOGGER.info(f"API Searching: {key} from {site}")
@@ -232,7 +232,7 @@ def _search(bot, key, site, message, method):
             client.search_delete(search_id=search_id)
 
 def _getResult(search_results, key, message, method):
-    if TELEGRAPH_STYLE is True:
+    if config_dict['TELEGRAPH_STYLE'] is True:
         telegraph_content = []
         if method == 'apirecent':
             msg = "<h4>API Recent Results</h4>"
