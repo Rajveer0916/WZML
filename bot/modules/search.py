@@ -49,7 +49,7 @@ TELEGRAPH_LIMIT = 99999999
 
 if config_dict['SEARCH_API_LINK']:
     try:
-        res = rget(f'"{config_dict['SEARCH_API_LINK']}"/api/v1/sites').json()
+        res = rget(f'{SEARCH_API_LINK}"/api/v1/sites').json()
         SITES = {str(site): str(site).capitalize() for site in res['supported_sites']}
         SITES['all'] = 'All'
     except Exception as e:
