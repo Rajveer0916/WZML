@@ -395,7 +395,7 @@ class GoogleDriveHelper:
                 if INDEX_URL := config_dict['INDEX_URL']:
                     url_path = rquote(f'{meta.get("name")}', safe='')
                     url = f'{INDEX_URL}/{url_path}/'
-                    url = short_url(url)
+                   # url = short_url(url)
                     buttons.buildbutton("⚡ Index Link", url)
             else:
                 file = self.__copyFile(meta.get('id'), config_dict['GDRIVE_ID'])
@@ -418,7 +418,7 @@ class GoogleDriveHelper:
                 if INDEX_URL := config_dict['INDEX_URL']:
                     url_path = rquote(f'{file.get("name")}', safe='')
                     url = f'{INDEX_URL}/{url_path}'
-                    url = short_url(url)
+                    # url = short_url(url)
                     buttons.buildbutton("⚡ Index Link", url)
                     if config_dict['VIEW_LINK']:
                         urls = f'{INDEX_URL}/{url_path}?a=view'
@@ -602,7 +602,7 @@ class GoogleDriveHelper:
                                 url_path = "/".join([rquote(n, safe='') for n in self.__get_recursive_list(file, dir_id)])
                             else:
                                 url_path = rquote(f'{file.get("name")}', safe='')
-                            url = short_url(url)
+                         #   url = short_url(url)
                             msg += f' <b>| <a href="{url}">Index Link</a></b>'
                     elif mime_type == 'application/vnd.google-apps.shortcut':
                         msg += f"⁍<a href='https://drive.google.com/drive/folders/{file.get('id')}'>{file.get('name')}" \
@@ -619,7 +619,7 @@ class GoogleDriveHelper:
 
                             else:
                                 url_path = rquote(f'{file.get("name")}')
-                            url = short_url(url)
+                          #  url = short_url(url)
                             msg += f' <b>| <a href="{url}">Index Link</a></b>'
                             if config_dict['VIEW_LINK']:
                                 urls = f'{INDEX_URLS[index]}/{url_path}?a=view'
