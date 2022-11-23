@@ -14,7 +14,7 @@ from bot.helper.ext_utils.bot_utils import get_readable_file_size
 from bot.helper.telegram_helper import button_build
 from bot.helper.ext_utils.html_helper import html_template
 
-if config_dict['SEARCH_PLUGINS'] is not None:
+if SEARCH_PLUGINS is not None:
     PLUGINS = []
     qbclient = get_client()
     qb_plugins = qbclient.search_plugins()
