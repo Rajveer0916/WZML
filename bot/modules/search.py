@@ -15,48 +15,32 @@ from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.html_helper import html_template
 from bot.helper.telegram_helper import button_build
 
-if config_dict['SEARCH_PLUGINS'] is not None:
-    PLUGINS = []
-    qbclient = get_client()
-    qb_plugins = qbclient.search_plugins()
-    if qb_plugins:
-        for plugin in qb_plugins:
-            qbclient.search_uninstall_plugin(names=plugin['name'])
-    qbclient.search_install_plugin(SEARCH_PLUGINS)
-    qbclient.auth_log_out()
+PLUGINS = []
+SITES = None
+TELEGRAPH_LIMIT = 300
 
-SITES = {
-    "1337x": "1337x",
-    "yts": "YTS",
-    "tgx": "TorrentGalaxy",
-    "torlock": "Torlock",
-    "piratebay": "PirateBay",
-    "nyaasi": "NyaaSi",
-    "zooqle": "Zooqle",
-    "kickass": "KickAss",
-    "bitsearch": "Bitsearch",
-    "glodls": "Glodls",
-    "magnetdl": "MagnetDL",
-    "limetorrent": "LimeTorrent",
-    "torrentfunk": "TorrentFunk",
-    "torrentproject": "TorrentProject",
-    "libgen": "Libgen",
-    "ybt": "YourBittorrent",
-    "all": "All"
-}
 
-TELEGRAPH_LIMIT = 99999999
+def initiate_search_tools():
+    if SEARCH_PLUGINS := config_dict['SEARCH_PLUGINS']:
+        globals()['PLUGINS'] = []
+        src_plugins = jsonloads(SEARCH_PLUGINS)
+        qbclient = get_client()
+        qb_plugins = qbclient.search_plugins()
+        if qb_plugins:
+            for plugin in qb_plugins:
+                qbclient.search_uninstall_plugin(names=plugin['name'])
+        qbclient.search_install_plugin(src_plugins)
+        qbclient.auth_log_out()
 
-if config_dict['SEARCH_API_LINK']:
-    try:
-        res = rget(f'{SEARCH_API_LINK}/api/v1/sites').json()
-        SITES = {str(site): str(site).capitalize() for site in res['supported_sites']}
-        SITES['all'] = 'All'
-    except Exception as e:
-        LOGGER.error("Can't fetching sites from SEARCH_API_LINK make sure use latest version of API")
-        SITES = None
-else:
-    SITES = None
+    if SEARCH_API_LINK := config_dict['SEARCH_API_LINK']:
+        global SITES
+        try:
+            res = rget(f'{SEARCH_API_LINK}/api/v1/sites').json()
+            SITES = {str(site): str(site).capitalize() for site in res['supported_sites']}
+            SITES['all'] = 'All'
+        except Exception as e:
+            LOGGER.error("Can't fetching sites from SEARCH_API_LINK make sure use latest version of API")
+            SITES = None
 
 def torser(update, context):
     user_id = update.message.from_user.id
