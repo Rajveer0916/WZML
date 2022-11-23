@@ -16,7 +16,25 @@ from bot.helper.ext_utils.html_helper import html_template
 from bot.helper.telegram_helper import button_build
 
 PLUGINS = []
-SITES = None
+SITES = {
+    "1337x": "1337x",
+    "yts": "YTS",
+    "tgx": "TorrentGalaxy",
+    "torlock": "Torlock",
+    "piratebay": "PirateBay",
+    "nyaasi": "NyaaSi",
+    "zooqle": "Zooqle",
+    "kickass": "KickAss",
+    "bitsearch": "Bitsearch",
+    "glodls": "Glodls",
+    "magnetdl": "MagnetDL",
+    "limetorrent": "LimeTorrent",
+    "torrentfunk": "TorrentFunk",
+    "torrentproject": "TorrentProject",
+    "libgen": "Libgen",
+    "ybt": "YourBittorrent",
+    "all": "All"
+}
 TELEGRAPH_LIMIT = 300
 
 
