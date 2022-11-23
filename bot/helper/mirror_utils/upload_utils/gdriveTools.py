@@ -602,7 +602,7 @@ class GoogleDriveHelper:
                                 url_path = "/".join([rquote(n, safe='') for n in self.__get_recursive_list(file, dir_id)])
                             else:
                                 url_path = rquote(f'{file.get("name")}', safe='')
-                         #   url = short_url(url)
+                            url = short_url(url)
                             msg += f' <b>| <a href="{url}">Index Link</a></b>'
                     elif mime_type == 'application/vnd.google-apps.shortcut':
                         msg += f"⁍<a href='https://drive.google.com/drive/folders/{file.get('id')}'>{file.get('name')}" \
