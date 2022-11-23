@@ -18,7 +18,7 @@ from bot.helper.telegram_helper import button_build
 if config_dict['SEARCH_PLUGINS'] is not None:
     PLUGINS = []
     qbclient = get_client()
-    qb_plugins = qbclient.config_dict['SEARCH_PLUGINS']()
+    qb_plugins = qbclient.search_plugins()
     if qb_plugins:
         for plugin in qb_plugins:
             qbclient.search_uninstall_plugin(names=plugin['name'])
