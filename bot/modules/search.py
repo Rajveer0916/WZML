@@ -290,7 +290,7 @@ def __getResult(search_results, key, message, method):
             telegraph_content.append(msg)
 
         editMessage(f"<b>Creating</b> {len(telegraph_content)} <b>Telegraph pages.</b>", message)
-         path = [telegraph.create_page(
+        path = [telegraph.create_page(
                     title=f"{config_dict['TITLE_NAME']}",
                     content=content
                 )["path"] for content in telegraph_content]
