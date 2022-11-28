@@ -44,7 +44,7 @@ SITES = {
     "all": "All"
 }
 
-TELEGRAPH_LIMIT = 99999999
+TELEGRAPH_LIMIT = 999999999
 
 if SEARCH_API_LINK:
     try:
