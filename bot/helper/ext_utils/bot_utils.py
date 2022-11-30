@@ -173,7 +173,7 @@ def get_progress_bar_string(status):
     p_str = config_dict['FINISHED_PROGRESS_STR'] * cFull
     if cPart >= 0:
         p_str += config_dict['MULTI_WORKING_PROGRESS_STR'][cPart]
-    p_str += config_dict['UN_FINISHED_PROGRESS_STR']  * (12 - cFull)
+    p_str += config_dict['UN_FINISHED_PROGRESS_STR']  * (100 // 9 - cFull)
     p_str = f"[{p_str}]"
     return p_str
 
