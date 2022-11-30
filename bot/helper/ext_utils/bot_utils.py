@@ -42,27 +42,27 @@ class MirrorStatus:
         STATUS_CHECKING = "📝 CheckUp"
         STATUS_SEEDING = "🌧 Seed"
     else:
-        STATUS_UPLOADING = "Upload"
-        STATUS_DOWNLOADING = "Download"
-        STATUS_CLONING = "Clone"
-        STATUS_WAITING = "Queue"
-        STATUS_PAUSED = "Pause"
-        STATUS_ARCHIVING = "Archive"
-        STATUS_EXTRACTING = "Extract"
-        STATUS_SPLITTING = "Split"
-        STATUS_CHECKING = "CheckUp"
-        STATUS_SEEDING = "Seed"
+        STATUS_UPLOADING = "📤 Upload"
+        STATUS_DOWNLOADING = "📥 Download"
+        STATUS_CLONING = "♻️ Clone"
+        STATUS_WAITING = "💤 Queue"
+        STATUS_PAUSED = "⛔️ Pause"
+        STATUS_ARCHIVING = "🔐 Archive"
+        STATUS_EXTRACTING = "📂 Extract"
+        STATUS_SPLITTING = "✂️ Split"
+        STATUS_CHECKING = "📝 CheckUp"
+        STATUS_SEEDING = "🌧 Seed"
 
 class EngineStatus:
-    STATUS_ARIA = "Aria2c📶"
-    STATUS_GD = "Google Api♻️"
-    STATUS_MEGA = "MegaSDK⭕️"
-    STATUS_QB = "qBittorrent🦠"
-    STATUS_TG = "Pyrogram💥"
-    STATUS_YT = "YT-dlp🌟"
-    STATUS_EXT = "Extract | pExtract⚔️"
-    STATUS_SPLIT = "FFmpeg✂️"
-    STATUS_ZIP = "p7zip🛠"
+    STATUS_ARIA = "<b>Aria2c📶</b>"
+    STATUS_GD = "<b>Google Api♻️</b>"
+    STATUS_MEGA = "<b>MegaSDK⭕️</b>"
+    STATUS_QB = "<b>qBittorrent🦠</b>"
+    STATUS_TG = "<b>Pyrogram💥</b>"
+    STATUS_YT = "<b>YT-dlp🌟</b>"
+    STATUS_EXT = "<b>Extract | pExtract⚔️</b>"
+    STATUS_SPLIT = "<b>FFmpeg✂️</b>"
+    STATUS_ZIP = "<b>p7zip🛠</b>"
 
     
 SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
@@ -174,7 +174,7 @@ def get_progress_bar_string(status):
     if cPart >= 0:
         p_str += config_dict['MULTI_WORKING_PROGRESS_STR'][cPart]
     p_str += config_dict['UN_FINISHED_PROGRESS_STR']  * (100 // 9 - cFull)
-    p_str = f"[{p_str}]"
+    p_str = f" ⠧{p_str}⠹"
     return p_str
 
 
