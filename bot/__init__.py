@@ -129,7 +129,6 @@ GDRIVE_ID_2 = environ.get('GDRIVE_ID_2', '')
 if len(GDRIVE_ID) == 0:
     GDRIVE_ID_2 = ''
 
-
 DOWNLOAD_DIR = environ.get('DOWNLOAD_DIR', '')
 if len(DOWNLOAD_DIR) == 0:
     DOWNLOAD_DIR = '/usr/src/app/downloads/'
@@ -290,6 +289,10 @@ if len(UPTOBOX_TOKEN) == 0:
 INDEX_URL = environ.get('INDEX_URL', '').rstrip("/")
 if len(INDEX_URL) == 0:
     INDEX_URL = ''
+
+INDEX_URL_2 = environ.get('INDEX_URL_2', '').rstrip("/")
+if len(INDEX_URL_2) == 0:
+    INDEX_URL_2 = ''
 
 SEARCH_API_LINK = environ.get('SEARCH_API_LINK', '').rstrip("/")
 if len(SEARCH_API_LINK) == 0:
@@ -682,6 +685,7 @@ config_dict = {'ANILIST_ENABLED': ANILIST_ENABLED,
                'IGNORE_PENDING_REQUESTS': IGNORE_PENDING_REQUESTS,
                'INCOMPLETE_TASK_NOTIFIER': INCOMPLETE_TASK_NOTIFIER,
                'INDEX_URL': INDEX_URL,
+               'INDEX_URL_2': INDEX_URL_2,
                'IS_TEAM_DRIVE': IS_TEAM_DRIVE,
                'TG_SPLIT_SIZE': TG_SPLIT_SIZE,
                'MEGA_API_KEY': MEGA_API_KEY,
@@ -776,7 +780,7 @@ if GDRIVE_ID:
 if GDRIVE_ID_2:
     DRIVES_NAMES.append("Main")
     DRIVES_IDS.append(GDRIVE_ID_2)
-    INDEX_URLS.append(INDEX_URL)
+    INDEX_URLS.append(INDEX_URL_2)
 
 if ospath.exists('list_drives.txt'):
     with open('list_drives.txt', 'r+') as f:
