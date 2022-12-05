@@ -125,6 +125,11 @@ GDRIVE_ID = environ.get('GDRIVE_ID', '')
 if len(GDRIVE_ID) == 0:
     GDRIVE_ID = ''
 
+GDRIVE_ID_2 = environ.get('GDRIVE_ID_2', '')
+if len(GDRIVE_ID) == 0:
+    GDRIVE_ID_2 = ''
+
+
 DOWNLOAD_DIR = environ.get('DOWNLOAD_DIR', '')
 if len(DOWNLOAD_DIR) == 0:
     DOWNLOAD_DIR = '/usr/src/app/downloads/'
@@ -673,6 +678,7 @@ config_dict = {'ANILIST_ENABLED': ANILIST_ENABLED,
                'EXTENSION_FILTER': EXTENSION_FILTER,
                'EMOJI_THEME': EMOJI_THEME,
                'GDRIVE_ID': GDRIVE_ID,
+               'GDRIVE_ID_2': GDRIVE_ID_2,
                'IGNORE_PENDING_REQUESTS': IGNORE_PENDING_REQUESTS,
                'INCOMPLETE_TASK_NOTIFIER': INCOMPLETE_TASK_NOTIFIER,
                'INDEX_URL': INDEX_URL,
@@ -764,7 +770,7 @@ config_dict = {'ANILIST_ENABLED': ANILIST_ENABLED,
 
 if GDRIVE_ID:
     DRIVES_NAMES.append("Main")
-    DRIVES_IDS.append(GDRIVE_ID)
+    DRIVES_IDS.append(GDRIVE_ID , GDRIVE_ID_2)
     INDEX_URLS.append(INDEX_URL)
 
 if ospath.exists('list_drives.txt'):
