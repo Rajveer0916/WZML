@@ -505,13 +505,11 @@ def bot_sys_stats():
 Made with ❤️ by {config_dict['CREDIT_NAME']}
 
 Tasks: {tasks}
-
 CPU: {progress_bar(cpu)} {cpu}%
 RAM: {progress_bar(mem)} {mem}%
 DISK: {progress_bar(disk)} {disk}%
 
 SENT: {sent} | RECV: {recv}
-
 DLs: {num_active} | ULs: {num_upload} | SEEDING: {num_seeding}
 ZIP: {num_zip} | UNZIP: {num_unzip} | SPLIT: {num_split}
 """
