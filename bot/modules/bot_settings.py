@@ -199,6 +199,10 @@ def load_config():
     if len(INDEX_URL) == 0:
         INDEX_URL = ''
 
+    INDEX_URL_2 = environ.get('INDEX_URL_2', '').rstrip("/")
+    if len(INDEX_URL_2) == 0:
+        INDEX_URL_2 = ''
+
     SEARCH_API_LINK = environ.get('SEARCH_API_LINK', '').rstrip("/")
     if len(SEARCH_API_LINK) == 0:
         SEARCH_API_LINK = ''
@@ -344,7 +348,7 @@ def load_config():
     if GDRIVE_ID_2:
         DRIVES_NAMES.append("Main")
         DRIVES_IDS.append(GDRIVE_ID_2)
-        INDEX_URLS.append(INDEX_URL)
+        INDEX_URLS.append(INDEX_URL_2)
 
     if ospath.exists('list_drives.txt'):
         with open('list_drives.txt', 'r+') as f:
@@ -655,6 +659,7 @@ def load_config():
                         'IGNORE_PENDING_REQUESTS': IGNORE_PENDING_REQUESTS,
                         'INCOMPLETE_TASK_NOTIFIER': INCOMPLETE_TASK_NOTIFIER,
                         'INDEX_URL': INDEX_URL,
+                        'INDEX_URL_2': INDEX_URL_2,
                         'IS_TEAM_DRIVE': IS_TEAM_DRIVE,
                         'TG_SPLIT_SIZE': TG_SPLIT_SIZE,
                         'MEGA_API_KEY': MEGA_API_KEY,
@@ -905,6 +910,11 @@ def edit_variable(update, context, omsg, key):
             INDEX_URLS[0] = value
         else:
             INDEX_URLS.insert(0, value)
+    elif key == 'INDEX_URL_2':
+        if DRIVES_NAMES and DRIVES_NAMES[0] == 'Main':
+            INDEX_URLS[0] = value
+        else:
+            INDEX_URLS.insert(0, value)
     elif value.isdigit():
         value = int(value)
     config_dict[key] = value
@@ -1089,6 +1099,9 @@ def edit_bot_settings(update, context):
                 DRIVES_IDS.pop(0)
                 INDEX_URLS.pop(0)
         elif data[2] == 'INDEX_URL':
+            if DRIVES_NAMES and DRIVES_NAMES[0] == 'Main':
+                INDEX_URLS[0] = ''
+        elif data[2] == 'INDEX_URL_2':
             if DRIVES_NAMES and DRIVES_NAMES[0] == 'Main':
                 INDEX_URLS[0] = ''
         elif data[2] == 'INCOMPLETE_TASK_NOTIFIER' and DATABASE_URL:
