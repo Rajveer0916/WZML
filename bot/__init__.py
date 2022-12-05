@@ -770,7 +770,12 @@ config_dict = {'ANILIST_ENABLED': ANILIST_ENABLED,
 
 if GDRIVE_ID:
     DRIVES_NAMES.append("Main")
-    DRIVES_IDS.append(GDRIVE_ID , GDRIVE_ID_2)
+    DRIVES_IDS.append(GDRIVE_ID)
+    INDEX_URLS.append(INDEX_URL)
+
+if GDRIVE_ID_2:
+    DRIVES_NAMES.append("Main")
+    DRIVES_IDS.append(GDRIVE_ID_2)
     INDEX_URLS.append(INDEX_URL)
 
 if ospath.exists('list_drives.txt'):
