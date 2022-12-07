@@ -377,7 +377,7 @@ class GoogleDriveHelper:
             meta = self.__getFileMetadata(file_id)
             mime_type = meta.get("mimeType")
             if mime_type == self.__G_DRIVE_DIR_MIME_TYPE:
-                dir_id = self.__create_directory(meta.get('name'), config_dict['GDRIVE_ID'], user_id)
+                dir_id = self.__create_directory(meta.get('name'), config_dict['GDRIVE_ID_2'], user_id)
                 self.__cloneFolder(meta.get('name'), meta.get('name'), meta.get('id'), dir_id)
                 durl = self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL.format(dir_id)
                 if self.__is_cancelled:
@@ -405,7 +405,7 @@ class GoogleDriveHelper:
                     url = short_url(url)
                     buttons.buildbutton("⚡ Index Link", url)
             else:
-                file = self.__copyFile(meta.get('id'), config_dict['GDRIVE_ID'], meta.get('name'), user_id)
+                file = self.__copyFile(meta.get('id'), config_dict['GDRIVE_ID_2'], meta.get('name'), user_id)
                 if config_dict['EMOJI_THEME']:
                     msg += f'<b>╭🗂️ Name: </b><code>{file.get("name")}</code>'
                 else:
