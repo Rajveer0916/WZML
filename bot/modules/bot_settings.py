@@ -116,6 +116,10 @@ def load_config():
     if len(GDRIVE_ID) == 0:
         GDRIVE_ID = ''
 
+    GDRIVE_ID_2 = environ.get('GDRIVE_ID_2', '')
+    if len(GDRIVE_ID_2) == 0:
+        GDRIVE_ID_2 = ''
+
     TGH_THUMB = environ.get('TGH_THUMB', '')
     if len(TGH_THUMB) == 0:
         TGH_THUMB = 'https://te.legra.ph/file/3325f4053e8d68eab07b5.jpg'
@@ -194,6 +198,10 @@ def load_config():
     INDEX_URL = environ.get('INDEX_URL', '').rstrip("/")
     if len(INDEX_URL) == 0:
         INDEX_URL = ''
+
+    INDEX_URL_2 = environ.get('INDEX_URL_2', '').rstrip("/")
+    if len(INDEX_URL_2) == 0:
+        INDEX_URL_2 = ''
 
     SEARCH_API_LINK = environ.get('SEARCH_API_LINK', '').rstrip("/")
     if len(SEARCH_API_LINK) == 0:
@@ -336,6 +344,11 @@ def load_config():
         DRIVES_NAMES.append("Main")
         DRIVES_IDS.append(GDRIVE_ID)
         INDEX_URLS.append(INDEX_URL)
+
+    if GDRIVE_ID_2:
+        DRIVES_NAMES.append("Main")
+        DRIVES_IDS.append(GDRIVE_ID_2)
+        INDEX_URLS.append(INDEX_URL_2)
 
     if ospath.exists('list_drives.txt'):
         with open('list_drives.txt', 'r+') as f:
@@ -642,9 +655,11 @@ def load_config():
                         'EQUAL_SPLITS': EQUAL_SPLITS,
                         'EXTENSION_FILTER': EXTENSION_FILTER,
                         'GDRIVE_ID': GDRIVE_ID,
+                        'GDRIVE_ID_2': GDRIVE_ID_2,
                         'IGNORE_PENDING_REQUESTS': IGNORE_PENDING_REQUESTS,
                         'INCOMPLETE_TASK_NOTIFIER': INCOMPLETE_TASK_NOTIFIER,
                         'INDEX_URL': INDEX_URL,
+                        'INDEX_URL_2': INDEX_URL_2,
                         'IS_TEAM_DRIVE': IS_TEAM_DRIVE,
                         'TG_SPLIT_SIZE': TG_SPLIT_SIZE,
                         'MEGA_API_KEY': MEGA_API_KEY,
@@ -885,7 +900,17 @@ def edit_variable(update, context, omsg, key):
             DRIVES_IDS[0] = value
         else:
             DRIVES_IDS.insert(0, value)
+    elif key == 'GDRIVE_ID_2':
+        if DRIVES_NAMES and DRIVES_NAMES[0] == 'Main':
+            DRIVES_IDS[0] = value
+        else:
+            DRIVES_IDS.insert(0, value)
     elif key == 'INDEX_URL':
+        if DRIVES_NAMES and DRIVES_NAMES[0] == 'Main':
+            INDEX_URLS[0] = value
+        else:
+            INDEX_URLS.insert(0, value)
+    elif key == 'INDEX_URL_2':
         if DRIVES_NAMES and DRIVES_NAMES[0] == 'Main':
             INDEX_URLS[0] = value
         else:
@@ -1068,7 +1093,15 @@ def edit_bot_settings(update, context):
                 DRIVES_NAMES.pop(0)
                 DRIVES_IDS.pop(0)
                 INDEX_URLS.pop(0)
+        elif data[2] == 'GDRIVE_ID_2':
+            if DRIVES_NAMES and DRIVES_NAMES[0] == 'Main':
+                DRIVES_NAMES.pop(0)
+                DRIVES_IDS.pop(0)
+                INDEX_URLS.pop(0)
         elif data[2] == 'INDEX_URL':
+            if DRIVES_NAMES and DRIVES_NAMES[0] == 'Main':
+                INDEX_URLS[0] = ''
+        elif data[2] == 'INDEX_URL_2':
             if DRIVES_NAMES and DRIVES_NAMES[0] == 'Main':
                 INDEX_URLS[0] = ''
         elif data[2] == 'INCOMPLETE_TASK_NOTIFIER' and DATABASE_URL:

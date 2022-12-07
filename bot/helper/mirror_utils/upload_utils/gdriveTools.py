@@ -399,7 +399,7 @@ class GoogleDriveHelper:
                 buttons = ButtonMaker()
                 durl = short_url(durl)
                 buttons.buildbutton("☁️ Drive Link", durl)
-                if INDEX_URL := config_dict['INDEX_URL']:
+                if INDEX_URL := config_dict['INDEX_URL_2']:
                     url_path = rquote(f'{meta.get("name")}', safe='')
                     url = f'{INDEX_URL}/{url_path}/'
                     url = short_url(url)
@@ -422,7 +422,7 @@ class GoogleDriveHelper:
                 else:
                     msg += f'\n<b>├ Size: </b>{get_readable_file_size(int(meta.get("size", 0)))}'
                     msg += f'\n<b>├ Type: </b>{mime_type}'
-                if INDEX_URL := config_dict['INDEX_URL']:
+                if INDEX_URL := config_dict['INDEX_URL_2']:
                     url_path = rquote(f'{file.get("name")}', safe='')
                     url = f'{INDEX_URL}/{url_path}'
                     url = short_url(url)
