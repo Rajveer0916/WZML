@@ -94,9 +94,9 @@ def _clone(message, bot):
         args = mesg.split(maxsplit=2)
         for x in args:
             x = x.strip()
-            if x.startswith('c:'):
+            if x.startswith('c.'):
                 index += 1
-                cargs = x.split(':')
+                cargs = x.split('.')
                 dname = cargs[1].strip() if cargs[1] else None
                 utds, _, _ = getUserTDs(user_id)
                 LOGGER.info(dname)
