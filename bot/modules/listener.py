@@ -357,7 +357,7 @@ class MirrorLeechListener:
                         buttons.buildbutton(f"🔗 Source Link", f"https://telegra.ph/{link}")
                     elif is_url(mesg):
                         source_link = mesg
-                        if source_link.startswith(("|", "pswd: ", "c:")):
+                        if source_link.startswith(("|", "pswd: ", "c.")):
                             pass
                         else:
                             buttons.buildbutton(f"🔗 Source Link", source_link)
@@ -509,7 +509,7 @@ class MirrorLeechListener:
                                 buttons.buildbutton(f"🔗 Source Link", f"https://telegra.ph/{link}")
                             elif is_url(mesg):
                                 source_link = mesg
-                                if source_link.startswith(("|", "pswd: ", "c:")):
+                                if source_link.startswith(("|", "pswd: ", "c.")):
                                     pass
                                 else:
                                     buttons.buildbutton(f"🔗 Source Link", source_link)
