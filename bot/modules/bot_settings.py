@@ -322,7 +322,7 @@ def load_config():
     WEB_PINCODE = WEB_PINCODE.lower() == 'true'
 
     ENABLE_USR_TD = environ.get('ENABLE_USR_TD', '')
-    ENABLE_USR_TD = ENABLE_USR_TD.lower() == 'false'
+    ENABLE_USR_TD = ENABLE_USR_TD.lower() == 'true'
 
     AS_DOCUMENT = environ.get('AS_DOCUMENT', '')
     AS_DOCUMENT = AS_DOCUMENT.lower() == 'true'
