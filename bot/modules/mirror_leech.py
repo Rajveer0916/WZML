@@ -127,9 +127,9 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 ratio = dargs[1] if dargs[1] else None
                 if len(dargs) == 3:
                     seed_time = dargs[2] if dargs[2] else None
-            elif x.startswith('c:'):
+            elif x.startswith('c.'):
                 index += 1
-                cargs = x.split(':')
+                cargs = x.split('.')
                 dname = cargs[1].strip() if cargs[1] else None
                 utds, _, _ = getUserTDs(user_id)
                 if len(utds) != 0:
