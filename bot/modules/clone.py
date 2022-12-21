@@ -9,7 +9,7 @@ from pyrogram import enums
 
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.ext_utils.timegap import timegap_check
-from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, sendMarkup, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage, auto_delete_upload_message, auto_delete_message, sendFile, sendPhoto
+from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage, auto_delete_upload_message, auto_delete_message, sendFile, sendPhoto, forcesub, isAdmin
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.mirror_utils.status_utils.clone_status import CloneStatus
@@ -23,26 +23,13 @@ from bot.helper.telegram_helper.button_build import ButtonMaker
 def _clone(message, bot):
     user_id = message.from_user.id
     buttons = ButtonMaker()
-    #if force_sub(message):
-        #return
-    if config_dict['FSUB']:
-        try:
-            user = bot.get_chat_member(f"{config_dict['FSUB_CHANNEL_ID']}", message.from_user.id)
-            LOGGER.info(user.status)
-            if user.status not in ("member", "creator", "administrator", "supergroup"):
-                if message.from_user.username:
-                    uname = f'<a href="tg://user?id={message.from_user.id}">{message.from_user.username}</a>'
-                else:
-                    uname = f'<a href="tg://user?id={message.from_user.id}">{message.from_user.first_name}</a>'
-                buttons = ButtonMaker()
-                chat_u = config_dict['CHANNEL_USERNAME'].replace("@", "")
-                buttons.buildbutton("👉🏻 CHANNEL LINK 👈🏻", f"https://t.me/{chat_u}")
-                help_msg = f"Dᴇᴀʀ {uname},\nYᴏᴜ ɴᴇᴇᴅ ᴛᴏ ᴊᴏɪɴ ᴍʏ Cʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ Bᴏᴛ \n\nCʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴇʟᴏᴡ Bᴜᴛᴛᴏɴ ᴛᴏ ᴊᴏɪɴ ᴍʏ Cʜᴀɴɴᴇʟ."
-                reply_message = sendMarkup(help_msg, bot, message, buttons.build_menu(2))
-                Thread(target=auto_delete_message, args=(bot, message, reply_message)).start()
-                return reply_message
-        except Exception:
-            pass
+    if not isAdmin(message):
+        if message.from_user.username:
+            tag = f"@{message.from_user.username}"
+        else:
+            tag = message.from_user.mention_html(message.from_user.first_name)
+        if forcesub(bot, message, tag):
+            return
             
     if get_bot_pm(user_id) and message.chat.type != 'private':
         try:
@@ -58,7 +45,7 @@ def _clone(message, bot):
             buttons.buildbutton("Click Here to Start Me", f"{botstart}")
             startwarn = f"Dear {uname},\n\n<b>I found that you haven't started me in PM (Private Chat) yet.</b>\n\n" \
                         f"From now on i will give link and leeched files in PM and log channel only"
-            message = sendMarkup(startwarn, bot, message, buttons.build_menu(2))
+            message = sendMessage(startwarn, bot, message, buttons.build_menu(2))
             return
 
     total_task = len(download_dict)
@@ -140,7 +127,7 @@ def _clone(message, bot):
     if ((len(CATEGORY_NAMES) > 1 and len(CATUSR) == 0) or (len(CATEGORY_NAMES) >= 1 and len(CATUSR) > 1)) and shwbtns:
         text, btns = get_category_buttons('clone', timeout, msg_id, c_index, u_index, user_id)
         btn_listener[msg_id] = listener
-        engine = sendMarkup(text, bot, message, btns)
+        engine = sendMessage(text, bot, message, btns)
         _auto_start_dl(engine, msg_id, timeout)
     else:
         start_clone(listener)
@@ -215,7 +202,7 @@ def start_clone(listelem):
         smsg, button = gd.drive_list(name, True, True)
         if smsg:
             if config_dict['TELEGRAPH_STYLE']:
-                return sendMarkup("Someone already mirrored it for you !\nHere you go:", bot, message, button)
+                return sendMessage("Someone already mirrored it for you !\nHere you go:", bot, message, button)
             else:
                 return sendFile(bot, message, button, f"File/Folder is already available in Drive. Here are the search results:\n\n{smsg}")
 
@@ -247,7 +234,7 @@ def start_clone(listelem):
                 if config_dict['PICS']:
                     sendPhoto(msg + botpm, bot, message, rchoice(config_dict['PICS']), buttons.build_menu(2))
                 else:
-                    sendMarkup(msg + botpm, bot, message, buttons.build_menu(2))
+                    sendMessage(msg + botpm, bot, message, buttons.build_menu(2))
             else:
                 if config_dict['EMOJI_THEME']:
                     cc = f'\n<b>╰👤 #Clone_By: </b>{tag}\n\n'
@@ -256,7 +243,7 @@ def start_clone(listelem):
                 if config_dict['PICS']:
                     sendPhoto(result + cc, bot, message, rchoice(config_dict['PICS']), button)
                 else:
-                    sendMarkup(result + cc, bot, message, button)
+                    sendMessage(result + cc, bot, message, button)
             message.delete()
             reply_to = message.reply_to_message
             if reply_to is not None and AUTO_DELETE_UPLOAD_MESSAGE_DURATION == -1:
@@ -291,7 +278,7 @@ def start_clone(listelem):
                         if config_dict['PICS']:
                             sendPhoto(msg + botpm, bot, message, rchoice(config_dict['PICS']), buttons.build_menu(2))
                         else:
-                            sendMarkup(msg + botpm, bot, message, buttons.build_menu(2))
+                            sendMessage(msg + botpm, bot, message, buttons.build_menu(2))
                     else:
                         if config_dict['EMOJI_THEME']:
                             cc = f'\n<b>╰👤 #Clone_By: </b>{tag}\n\n'
@@ -300,7 +287,7 @@ def start_clone(listelem):
                         if config_dict['PICS']:
                             sendPhoto(result + cc, bot, message, rchoice(config_dict['PICS']), button)
                         else:
-                            sendMarkup(result + cc, bot, message, button.build_menu(2))       
+                            sendMessage(result + cc, bot, message, button.build_menu(2))       
                     message.delete()
                     reply_to = message.reply_to_message
                     if reply_to is not None and AUTO_DELETE_UPLOAD_MESSAGE_DURATION == -1:
@@ -387,7 +374,7 @@ def start_clone(listelem):
         if config_dict['PICS']:
             msg = sendPhoto(result + cc + pmwarn + logwarn + warnmsg, bot, message, rchoice(config_dict['PICS']), button.build_menu(2))
         else:
-            msg = sendMarkup(result + cc + pmwarn + logwarn + warnmsg, bot, message, button.build_menu(2))
+            msg = sendMessage(result + cc + pmwarn + logwarn + warnmsg, bot, message, button.build_menu(2))
         Thread(target=auto_delete_upload_message, args=(bot, message, msg)).start()
     if (is_gdtot or is_unified or is_udrive or is_sharer or is_sharedrive or is_filepress):
         gd.deletefile(link)
@@ -455,7 +442,7 @@ def cloneNode(update, context):
 
 authfilter = CustomFilters.authorized_chat if config_dict['CLONE_ENABLED'] is True else CustomFilters.owner_filter
 clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode,
-                                    filters=authfilter | CustomFilters.authorized_user, run_async=True)
+                                    filters=authfilter | CustomFilters.authorized_user)
 clone_confirm_handler = CallbackQueryHandler(confirm_clone, pattern="clone")
 dispatcher.add_handler(clone_confirm_handler)
 dispatcher.add_handler(clone_handler)

@@ -7,7 +7,7 @@ from requests import request
 from re import split as re_split
 
 from bot import *
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, auto_delete_upload_message, auto_delete_message
+from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, auto_delete_upload_message, auto_delete_message, isAdmin, forcesub
 from bot.helper.ext_utils.bot_utils import *
 from bot.helper.ext_utils.timegap import timegap_check
 from bot.helper.mirror_utils.download_utils.yt_dlp_download_helper import YoutubeDLHelper
@@ -29,25 +29,15 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
     c_index = 0
     u_index = None
     buttons = ButtonMaker()
-    
-    if config_dict['FSUB']:
-        try:
-            user = bot.get_chat_member(f"{config_dict['FSUB_CHANNEL_ID']}", message.from_user.id)
-            LOGGER.info(user.status)
-            if user.status not in ("member", "creator", "administrator", "supergroup"):
-                if message.from_user.username:
-                    uname = f'<a href="tg://user?id={message.from_user.id}">{message.from_user.username}</a>'
-                else:
-                    uname = f'<a href="tg://user?id={message.from_user.id}">{message.from_user.first_name}</a>'
-                buttons = ButtonMaker()
-                chat_u = config_dict['CHANNEL_USERNAME'].replace("@", "")
-                buttons.buildbutton("👉🏻 CHANNEL LINK 👈🏻", f"https://t.me/{chat_u}")
-                help_msg = f"Dᴇᴀʀ {uname},\nYᴏᴜ ɴᴇᴇᴅ ᴛᴏ ᴊᴏɪɴ ᴍʏ Cʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ Bᴏᴛ \n\nCʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴇʟᴏᴡ Bᴜᴛᴛᴏɴ ᴛᴏ ᴊᴏɪɴ ᴍʏ Cʜᴀɴɴᴇʟ."
-                reply_message = sendMarkup(help_msg, bot, message, buttons.build_menu(2))
-                Thread(target=auto_delete_message, args=(bot, message, reply_message)).start()
-                return reply_message
-        except Exception:
-            pass
+
+    if not isAdmin(message):
+        if message.from_user.username:
+            tag = f"@{message.from_user.username}"
+        else:
+            tag = message.from_user.mention_html(message.from_user.first_name)
+        if forcesub(bot, message, tag):
+            return
+
     if get_bot_pm(user_id) and message.chat.type != 'private':
         try:
             msg1 = f'Added your Requested link to Download\n'
@@ -62,7 +52,7 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
             buttons.buildbutton("Click Here to Start Me", f"{botstart}")
             startwarn = f"Dear {uname},\n\n<b>I found that you haven't started me in PM (Private Chat) yet.</b>\n\n" \
                         f"From now on i will give link and leeched files in PM and log channel only"
-            reply_message = sendMarkup(startwarn, bot, message, buttons.build_menu(2))
+            reply_message = sendMessage(startwarn, bot, message, buttons.build_menu(2))
             Thread(target=auto_delete_message, args=(bot, message, reply_message)).start()
             return reply_message
 
@@ -81,12 +71,11 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
                 return sendMessage(f"<b>Bᴏᴛ Tᴏᴛᴀʟ Tᴀsᴋ Lɪᴍɪᴛ : {TOTAL_TASKS_LIMIT}\nTᴀsᴋs Pʀᴏᴄᴇssɪɴɢ : {total_task}\n#total limit exceed </b>", bot ,message)
             if USER_TASKS_LIMIT == get_user_task(user_id):
                 return sendMessage(f"<b>Bᴏᴛ Usᴇʀ Tᴀsᴋ Lɪᴍɪᴛ : {USER_TASKS_LIMIT} \nYᴏᴜʀ Tᴀsᴋs : {get_user_task(user_id)}\n#user limit exceed</b>", bot ,message)
-
-    if user_id != OWNER_ID and not is_sudo(user_id) and not is_paid(user_id):
         time_gap = timegap_check(message)
         if time_gap:
             return
         TIME_GAP_STORE[message.from_user.id] = time()
+        
     index = 1
     link = ''
 
@@ -94,7 +83,9 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
     if len(args) > 1:
         for x in args:
             x = x.strip()
-            if x == 's':
+            if x in ['|', 'pswd:', 'opt:']:
+                break
+            elif x == 's':
                select = True
                index += 1
             elif x.strip().isdigit():
@@ -168,11 +159,11 @@ Check all yt-dlp api options from this <a href='https://github.com/yt-dlp/yt-dlp
     if len(CATUSR) >= 1: u_index = 0
     listener = [bot, message, isZip, isLeech, pswd, tag, link]
     extra = [name, opt, qual, select, c_index, u_index, time()]
-    if ((len(CATEGORY_NAMES) > 1 and len(CATUSR) == 0) or (len(CATEGORY_NAMES) >= 1 and len(CATUSR) > 1)) and not isLeech:
+    if ((len(CATEGORY_NAMES) > 1 and len(CATUSR) == 0) or (len(CATEGORY_NAMES) >= 1 and len(CATUSR) > 1)) and not isLeech and multi == 0:
         timeout = 60
         btn_listener[msg_id] = [extra, listener, timeout]
         text, btns = get_category_buttons('ytdlp', timeout, msg_id, c_index, u_index, user_id)
-        engine = sendMarkup(text, bot, message, btns)
+        engine = sendMessage(text, bot, message, btns)
         _auto_start_dl(engine, msg_id, timeout)
     else:
         start_ytdlp(extra, listener)
@@ -345,7 +336,7 @@ def start_ytdlp(extra, ytdlp_listener):
             buttons.sbutton("Cancel", f"qu {msg_id} cancel")
             YTBUTTONS = buttons.build_menu(3)
             listener_dict[msg_id] = [listener, user_id, link, name, YTBUTTONS, opt, formats_dict]
-            bmsg = sendMarkup('Choose Playlist Videos Quality:', bot, message, YTBUTTONS)
+            bmsg = sendMessage('Choose Playlist Videos Quality:', bot, message, YTBUTTONS)
         else:
             formats = result.get('formats')
             if formats is not None:
@@ -395,7 +386,7 @@ def start_ytdlp(extra, ytdlp_listener):
             buttons.sbutton("Cancel", f"qu {msg_id} cancel")
             YTBUTTONS = buttons.build_menu(2)
             listener_dict[msg_id] = [listener, user_id, link, name, YTBUTTONS, opt, formats_dict]
-            bmsg = sendMarkup('Choose Video Quality:', bot, message, YTBUTTONS)
+            bmsg = sendMessage('Choose Video Quality:', bot, message, YTBUTTONS)
         Thread(target=_auto_cancel, args=(bmsg, msg_id)).start()
 
 @new_thread
@@ -476,16 +467,16 @@ def ytdlZipleech(update, context):
 
 authfilter = CustomFilters.authorized_chat if config_dict['WATCH_ENABLED'] is True else CustomFilters.owner_filter
 ytdl_handler = CommandHandler(BotCommands.YtdlCommand, ytdl,
-                                    filters=authfilter | CustomFilters.authorized_user, run_async=True)
+                                    filters=authfilter | CustomFilters.authorized_user)
 ytdl_zip_handler = CommandHandler(BotCommands.YtdlZipCommand, ytdlZip,
-                                    filters=authfilter | CustomFilters.authorized_user, run_async=True)
+                                    filters=authfilter | CustomFilters.authorized_user)
 ytdl_leech_handler = CommandHandler(BotCommands.YtdlLeechCommand, ytdlleech,
-                                    filters=authfilter | CustomFilters.authorized_user, run_async=True)
+                                    filters=authfilter | CustomFilters.authorized_user)
 ytdl_zip_leech_handler = CommandHandler(BotCommands.YtdlZipLeechCommand, ytdlZipleech,
-                                    filters=authfilter | CustomFilters.authorized_user, run_async=True)
+                                    filters=authfilter | CustomFilters.authorized_user)
 
 
-quality_handler = CallbackQueryHandler(select_format, pattern="qu", run_async=True)
+quality_handler = CallbackQueryHandler(select_format, pattern="qu")
 ytdl_confirm_handler = CallbackQueryHandler(ytdl_confirm, pattern="ytdlp")
 
 dispatcher.add_handler(ytdl_confirm_handler)

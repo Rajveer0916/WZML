@@ -3,7 +3,7 @@ from logging import getLogger, FileHandler, StreamHandler, INFO, basicConfig, er
 from socket import setdefaulttimeout
 from urllib.request import urlretrieve
 from faulthandler import enable as faulthandler_enable
-from telegram.ext import Updater as tgUpdater
+from telegram.ext import Updater as tgUpdater, Defaults
 from qbittorrentapi import Client as qbClient
 from aria2p import API as ariaAPI, Client as ariaClient
 from os import remove as osremove, path as ospath, environ, mkdir
@@ -331,7 +331,7 @@ DAILY_MIRROR_LIMIT = '' if len(DAILY_MIRROR_LIMIT) == 0 else int(DAILY_MIRROR_LI
 DAILY_LEECH_LIMIT = environ.get('DAILY_LEECH_LIMIT', '')
 DAILY_LEECH_LIMIT = '' if len(DAILY_LEECH_LIMIT) == 0 else int(DAILY_LEECH_LIMIT)
 
-CMD_PERFIX = environ.get('CMD_PERFIX', '')
+CMD_SUFFIX = environ.get('CMD_SUFFIX', '')
 
 TORRENT_TIMEOUT = environ.get('TORRENT_TIMEOUT', '')
 TORRENT_TIMEOUT = '' if len(TORRENT_TIMEOUT) == 0 else int(TORRENT_TIMEOUT)
@@ -360,6 +360,11 @@ TOTAL_TASKS_LIMIT = '' if len(TOTAL_TASKS_LIMIT) == 0 else int(TOTAL_TASKS_LIMIT
 USER_TASKS_LIMIT = environ.get('USER_TASKS_LIMIT', '')
 USER_TASKS_LIMIT = '' if len(USER_TASKS_LIMIT) == 0 else int(USER_TASKS_LIMIT)
 
+MAX_PLAYLIST = environ.get('MAX_PLAYLIST', '')
+MAX_PLAYLIST = '' if len(MAX_PLAYLIST) == 0 else int(MAX_PLAYLIST)
+
+YTDLP_LIMIT = environ.get('YTDLP_LIMIT', '')
+YTDLP_LIMIT = '' if len(YTDLP_LIMIT) == 0 else float(YTDLP_LIMIT)
 
 RSS_USER_SESSION_STRING = environ.get('RSS_USER_SESSION_STRING', '')
 rss_session = Client(name='rss_session', api_id=(TELEGRAM_API), api_hash=TELEGRAM_HASH, session_string=RSS_USER_SESSION_STRING, parse_mode=enums.ParseMode.HTML, no_updates=True) if len(RSS_USER_SESSION_STRING) != 0 else None
@@ -459,8 +464,9 @@ FORCE_BOT_PM = FORCE_BOT_PM.lower() == 'true'
 SOURCE_LINK = environ.get('SOURCE_LINK', '')
 SOURCE_LINK = SOURCE_LINK.lower() == 'true'
 
-FSUB = environ.get('FSUB', '')
-FSUB = FSUB.lower() == 'true'
+FSUB_IDS = environ.get('FSUB_IDS', '')
+if len(FSUB_IDS) == 0:
+    FSUB_IDS = ''
 
 PAID_SERVICE = environ.get('PAID_SERVICE', '')
 PAID_SERVICE = PAID_SERVICE.lower() == 'true'
@@ -598,14 +604,6 @@ if len(MULTI_WORKING_PROGRESS_STR) != 7:
     LOGGER.warning("Multi Progress doesn't contain 7 Symbols. Check Agian, Using Default for Now !")
     MULTI_WORKING_PROGRESS_STR = '▁ ▂ ▃ ▄ ▅ ▆ ▇'.split(' ')
 
-CHANNEL_USERNAME = environ.get('CHANNEL_USERNAME', '')
-if len(CHANNEL_USERNAME) == 0:
-    CHANNEL_USERNAME = 'WeebZone_updates'
-
-FSUB_CHANNEL_ID = environ.get('FSUB_CHANNEL_ID', '')
-if len(FSUB_CHANNEL_ID) == 0:
-    FSUB_CHANNEL_ID = '-1001512307861'
-
 IMAGE_URL = environ.get('IMAGE_URL', '')
 if len(IMAGE_URL) == 0:
     IMAGE_URL = 'https://graph.org/file/6b22ef7b8a733c5131d3f.jpg'
@@ -687,10 +685,9 @@ config_dict = {'ANILIST_ENABLED': ANILIST_ENABLED,
                'BUTTON_SIX_URL': BUTTON_SIX_URL,
                'CAPTION_FONT': CAPTION_FONT,
                'CREDIT_NAME': CREDIT_NAME,
-               'CHANNEL_USERNAME': CHANNEL_USERNAME,
                'CLONE_ENABLED': CLONE_ENABLED,
                'CLONE_LIMIT': CLONE_LIMIT,
-               'CMD_PERFIX': CMD_PERFIX,
+               'CMD_SUFFIX': CMD_SUFFIX,
                'DRIVEFIRE_CRYPT': DRIVEFIRE_CRYPT,
                'DOWNLOAD_DIR': DOWNLOAD_DIR,
                'DATABASE_URL': DATABASE_URL,
@@ -734,8 +731,7 @@ config_dict = {'ANILIST_ENABLED': ANILIST_ENABLED,
                'TGH_THUMB': TGH_THUMB,
                'TITLE_NAME': TITLE_NAME,
                'GD_INFO': GD_INFO,
-               'FSUB': FSUB,
-               'FSUB_CHANNEL_ID': FSUB_CHANNEL_ID,
+               'FSUB_IDS': FSUB_IDS,
                'SA_MAIL': SA_MAIL,
                'SHORTENER': SHORTENER,
                'SHORTENER_API': SHORTENER_API,
@@ -795,6 +791,8 @@ config_dict = {'ANILIST_ENABLED': ANILIST_ENABLED,
                'START_BTN2_NAME': START_BTN2_NAME,
                'START_BTN2_URL': START_BTN2_URL,
                'WEB_PINCODE': WEB_PINCODE,
+               'YTDLP_LIMIT': YTDLP_LIMIT,
+               'MAX_PLAYLIST': MAX_PLAYLIST,
                'YT_DLP_QUALITY': YT_DLP_QUALITY}
 
 if GDRIVE_ID:
@@ -899,7 +897,8 @@ else:
             del qb_opt[k]
     qb_client.app_set_preferences(qb_opt)
 
-updater = tgUpdater(token=BOT_TOKEN, request_kwargs={'read_timeout': 20, 'connect_timeout': 15})
+tgDefaults = Defaults(parse_mode='HTML', disable_web_page_preview=True, allow_sending_without_reply=True, run_async=True)
+updater = tgUpdater(token=BOT_TOKEN, defaults=tgDefaults, request_kwargs={'read_timeout': 20, 'connect_timeout': 15})
 bot = updater.bot
 dispatcher = updater.dispatcher
 job_queue = updater.job_queue
