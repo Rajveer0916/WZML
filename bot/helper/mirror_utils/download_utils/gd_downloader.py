@@ -107,10 +107,10 @@ def add_gd_download(link, path, listener, newname, is_gdtot, is_unified, is_udri
         LOGGER.info(f"Download from GDrive: {name}")
         listener.onDownloadStart()
         sendStatusMessage(listener.message, listener.bot)
-        drive.download(link)
-        if (is_gdtot or is_unified or is_udrive or is_sharer or is_sharedrive):
-            drive.deletefile(link)
     else:
         LOGGER.info(f'Start Queued Download from GDrive: {name}')
+    drive.download(link)
+    if (is_gdtot or is_unified or is_udrive or is_sharer or is_sharedrive):
+        drive.deletefile(link)
 
  
