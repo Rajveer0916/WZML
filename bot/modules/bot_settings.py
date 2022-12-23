@@ -12,6 +12,7 @@ from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.bot_utils import new_thread, setInterval, new_thread
 from bot.helper.ext_utils.db_handler import DbManger
+from bot.helper.ext_utils.queued_starter import start_from_queued
 from bot.modules.search import initiate_search_tools
 
 START = 0
@@ -300,6 +301,16 @@ def load_config():
 
     YTDLP_LIMIT = environ.get('YTDLP_LIMIT', '')
     YTDLP_LIMIT = '' if len(YTDLP_LIMIT) == 0 else float(YTDLP_LIMIT)
+
+    QUEUE_ALL = environ.get('QUEUE_ALL', '')
+    QUEUE_ALL = '' if len(QUEUE_ALL) == 0 else int(QUEUE_ALL)
+
+    QUEUE_DOWNLOAD = environ.get('QUEUE_DOWNLOAD', '')
+    QUEUE_DOWNLOAD = '' if len(QUEUE_DOWNLOAD) == 0 else int(QUEUE_DOWNLOAD)
+
+    QUEUE_UPLOAD = environ.get('QUEUE_UPLOAD', '')
+    QUEUE_UPLOAD = '' if len(QUEUE_UPLOAD) == 0 else int(QUEUE_UPLOAD)
+
 
     INCOMPLETE_TASK_NOTIFIER = environ.get('INCOMPLETE_TASK_NOTIFIER', '')
     INCOMPLETE_TASK_NOTIFIER = INCOMPLETE_TASK_NOTIFIER.lower() == 'true'
@@ -718,6 +729,9 @@ def load_config():
                         'LEECH_ENABLED': LEECH_ENABLED,
                         'MIRROR_ENABLED': MIRROR_ENABLED,
                         'QB_MIRROR_ENABLED': QB_MIRROR_ENABLED,
+                        'QUEUE_ALL': QUEUE_ALL,
+                        'QUEUE_DOWNLOAD': QUEUE_DOWNLOAD,
+                        'QUEUE_UPLOAD': QUEUE_UPLOAD,
                         'WATCH_ENABLED': WATCH_ENABLED,
                         'CLONE_ENABLED': CLONE_ENABLED,
                         'ANILIST_ENABLED': ANILIST_ENABLED,
@@ -800,6 +814,7 @@ def load_config():
 
     if DATABASE_URL:
         DbManger().update_config(config_dict)
+    start_from_queued()
 
 def get_buttons(key=None, edit_type=None):
     buttons = ButtonMaker()
@@ -822,7 +837,7 @@ def get_buttons(key=None, edit_type=None):
         buttons.sbutton('Close', "botset close")
         for x in range(0, len(config_dict)-1, 10):
             buttons.sbutton(int(x/10), f"botset start var {x}", position='footer')
-        msg = f'Bot Variables. Page: {int(START/10)}. State: {STATE}'
+        msg = f'Config Variables | Page: {int(START/10)} | State: {STATE}'
     elif key == 'private':
         buttons.sbutton('Back', "botset back")
         buttons.sbutton('Close', "botset close")
@@ -840,7 +855,7 @@ def get_buttons(key=None, edit_type=None):
         buttons.sbutton('Close', "botset close")
         for x in range(0, len(aria2_options)-1, 10):
             buttons.sbutton(int(x/10), f"botset start aria {x}", position='footer')
-        msg = f'Aria2c Options. Page: {int(START/10)}. State: {STATE}'
+        msg = f'Aria2c Options | Page: {int(START/10)} | State: {STATE}'
     elif key == 'qbit':
         for k in list(qbit_options.keys())[START:10+START]:
             buttons.sbutton(k, f"botset editqbit {k}")
@@ -852,7 +867,7 @@ def get_buttons(key=None, edit_type=None):
         buttons.sbutton('Close', "botset close")
         for x in range(0, len(qbit_options)-1, 10):
             buttons.sbutton(int(x/10), f"botset start qbit {x}", position='footer')
-        msg = f'Qbittorrent Options. Page: {int(START/10)}. State: {STATE}'
+        msg = f'Qbittorrent Options | Page: {int(START/10)} | State: {STATE}'
     elif edit_type == 'editvar':
         buttons.sbutton('Back', "botset back var")
         if key not in ['TELEGRAM_HASH', 'TELEGRAM_API', 'OWNER_ID', 'BOT_TOKEN']:
@@ -956,6 +971,8 @@ def edit_variable(update, context, omsg, key):
     update.message.delete()
     if DATABASE_URL:
         DbManger().update_config({key: value})
+    if key in ['QUEUE_ALL', 'QUEUE_DOWNLOAD', 'QUEUE_UPLOAD']:
+        start_from_queued()
 
 def edit_aria(update, context, omsg, key):
     handler_dict[omsg.chat.id] = False
@@ -1007,9 +1024,11 @@ def update_private_file(update, context, omsg):
     if not message.document and message.text:
         file_name = message.text
         fn = file_name.rsplit('.zip', 1)[0]
-        if ospath.exists(fn):
+        if ospath.isfile(fn):
             remove(fn)
         if fn == 'accounts':
+            if ospath.exists('accounts'):
+                srun(["rm", "-rf", "accounts"])
             config_dict['USE_SERVICE_ACCOUNTS'] = False
             if DATABASE_URL:
                 DbManger().update_config({'USE_SERVICE_ACCOUNTS': False})
@@ -1104,6 +1123,8 @@ def edit_bot_settings(update, context):
         query.answer()
         handler_dict[message.chat.id] = False
         key = data[2] if len(data) == 3 else None
+        if key is None:
+            globals()['START'] = 0
         update_buttons(message, key)
     elif data[1] in ['var', 'aria', 'qbit']:
         query.answer()
@@ -1160,6 +1181,8 @@ def edit_bot_settings(update, context):
         update_buttons(message, 'var')
         if DATABASE_URL:
             DbManger().update_config({data[2]: value})
+        if data[2] in ['QUEUE_ALL', 'QUEUE_DOWNLOAD', 'QUEUE_UPLOAD']:
+            start_from_queued()
     elif data[1] == 'resetaria':
         handler_dict[message.chat.id] = False
         aria2_defaults = aria2.client.get_global_option()
@@ -1340,6 +1363,7 @@ def edit_bot_settings(update, context):
 
 def bot_settings(update, context):
     msg, button = get_buttons()
+    globals()['START'] = 0
     sendMessage(msg, context.bot, update.message, button)
 
 

@@ -44,6 +44,10 @@ user_data = {}
 user_data = {} # {user_id: [datetime(date), daily_tasks: int, leech, mirror]}
 aria2_options = {}
 qbit_options = {}
+queued_dl = {}
+queued_up = {}
+non_queued_dl = set()
+non_queued_up = set()
 TIME_GAP_STORE = {}
 
 GLOBAL_EXTENSION_FILTER = ['.aria2']
@@ -57,6 +61,7 @@ except:
 
 download_dict_lock = Lock()
 status_reply_dict_lock = Lock()
+queue_dict_lock = Lock()
 # Key: update.effective_chat.id
 # Value: telegram.Message
 status_reply_dict = {}
@@ -68,6 +73,10 @@ download_dict = {}
 rss_dict = {}
 btn_listener = {}
 
+if ospath.exists('pyrogram.session'):
+    osremove('pyrogram.session')
+if ospath.exists('pyrogram.session-journal'):
+    osremove('pyrogram.session-journal')
 
 BOT_TOKEN = environ.get('BOT_TOKEN', '')
 if len(BOT_TOKEN) == 0:
@@ -365,6 +374,15 @@ MAX_PLAYLIST = '' if len(MAX_PLAYLIST) == 0 else int(MAX_PLAYLIST)
 
 YTDLP_LIMIT = environ.get('YTDLP_LIMIT', '')
 YTDLP_LIMIT = '' if len(YTDLP_LIMIT) == 0 else float(YTDLP_LIMIT)
+
+QUEUE_ALL = environ.get('QUEUE_ALL', '')
+QUEUE_ALL = '' if len(QUEUE_ALL) == 0 else int(QUEUE_ALL)
+
+QUEUE_DOWNLOAD = environ.get('QUEUE_DOWNLOAD', '')
+QUEUE_DOWNLOAD = '' if len(QUEUE_DOWNLOAD) == 0 else int(QUEUE_DOWNLOAD)
+
+QUEUE_UPLOAD = environ.get('QUEUE_UPLOAD', '')
+QUEUE_UPLOAD = '' if len(QUEUE_UPLOAD) == 0 else int(QUEUE_UPLOAD)
 
 RSS_USER_SESSION_STRING = environ.get('RSS_USER_SESSION_STRING', '')
 rss_session = Client(name='rss_session', api_id=(TELEGRAM_API), api_hash=TELEGRAM_HASH, session_string=RSS_USER_SESSION_STRING, parse_mode=enums.ParseMode.HTML, no_updates=True) if len(RSS_USER_SESSION_STRING) != 0 else None
@@ -715,6 +733,9 @@ config_dict = {'ANILIST_ENABLED': ANILIST_ENABLED,
                'LEECH_ENABLED': LEECH_ENABLED,
                'MIRROR_ENABLED': MIRROR_ENABLED,
                'QB_MIRROR_ENABLED': QB_MIRROR_ENABLED,
+               'QUEUE_ALL': QUEUE_ALL,
+               'QUEUE_DOWNLOAD': QUEUE_DOWNLOAD,
+               'QUEUE_UPLOAD': QUEUE_UPLOAD,
                'WATCH_ENABLED': WATCH_ENABLED,
                'WAYBACK_ENABLED': WAYBACK_ENABLED,
                'MEDIAINFO_ENABLED': MEDIAINFO_ENABLED,

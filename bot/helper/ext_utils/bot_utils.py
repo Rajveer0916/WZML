@@ -36,7 +36,8 @@ class MirrorStatus:
         STATUS_UPLOADING = "📤 Upload"
         STATUS_DOWNLOADING = "📥 Download"
         STATUS_CLONING = "♻️ Clone"
-        STATUS_WAITING = "💤 Queue"
+        STATUS_QUEUEDL = "💤 QueueDl"
+        STATUS_QUEUEUP = "💤 QueueUp"
         STATUS_PAUSED = "⛔️ Pause"
         STATUS_ARCHIVING = "🔐 Archive"
         STATUS_EXTRACTING = "📂 Extract"
@@ -48,7 +49,8 @@ class MirrorStatus:
         STATUS_UPLOADING = "Upload"
         STATUS_DOWNLOADING = "Download"
         STATUS_CLONING = "Clone"
-        STATUS_WAITING = "Queue"
+        STATUS_QUEUEDL = "QueueDl"
+        STATUS_QUEUEUP = "QueueUp"
         STATUS_PAUSED = "Pause"
         STATUS_ARCHIVING = "Archive"
         STATUS_EXTRACTING = "Extract"
@@ -67,6 +69,7 @@ class EngineStatus:
     STATUS_EXT = "Extract | pExtract⚔️"
     STATUS_SPLIT_MERGE = "FFmpeg🍿"
     STATUS_ZIP = "p7zip🛠"
+    STATUS_QUEUE = "Sleep💤"
 
     
 SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
@@ -228,7 +231,7 @@ def get_readable_message():
         for index, download in enumerate(list(download_dict.values())[COUNT:], start=1):
             msg += f"<b>╭ <a href='{download.message.link}'>{download.status()}</a>: </b>"
             msg += f"<code>{escape(str(download.name()))}</code>"
-            if download.status() not in [MirrorStatus.STATUS_SEEDING, MirrorStatus.STATUS_SPLITTING, MirrorStatus.STATUS_CONVERTING]:
+            if download.status() not in [MirrorStatus.STATUS_SEEDING, MirrorStatus.STATUS_SPLITTING, MirrorStatus.STATUS_CONVERTING, MirrorStatus.STATUS_QUEUEDL, MirrorStatus.STATUS_QUEUEUP]:
                 if config_dict['EMOJI_THEME']:
                     msg += f"\n<b>├</b>{get_progress_bar_string(download)} {download.progress()}"
                     msg += f"\n<b>├🔄 Process:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"

@@ -1,14 +1,15 @@
 from random import SystemRandom
 from string import ascii_letters, digits
-from bot import download_dict, download_dict_lock, LOGGER, user_data, config_dict, OWNER_ID
+from bot import download_dict, download_dict_lock, LOGGER, user_data, config_dict, OWNER_ID, non_queued_dl, non_queued_up, queued_dl, queue_dict_lock
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.status_utils.gd_download_status import GdDownloadStatus
+from bot.helper.mirror_utils.status_utils.queue_status import QueueStatus
 from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage, sendFile
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, is_sudo, is_paid, getdailytasks
 from bot.helper.ext_utils.fs_utils import get_base_name, check_storage_threshold
 
 
-def add_gd_download(link, path, listener, newname, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive, is_filepress):
+def add_gd_download(link, path, listener, newname, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive, is_filepress, from_queue=False):
     res, size, name, files = GoogleDriveHelper().helper(link)
     if res != "":
         return sendMessage(res, listener.bot, listener.message)
@@ -79,15 +80,37 @@ def add_gd_download(link, path, listener, newname, is_gdtot, is_unified, is_udri
         return sendMessage(mssg, listener.bot, listener.message)
     elif listener.isLeech: lsize = getdailytasks(user_id, upleech=size, check_leech=True); LOGGER.info(f"User : {user_id} Daily Leech Size : {get_readable_file_size(lsize)}")
 
-    LOGGER.info(f"Download Name: {name}")
-    drive = GoogleDriveHelper(name, path, size, listener)
     gid = ''.join(SystemRandom().choices(ascii_letters + digits, k=12))
-    download_status = GdDownloadStatus(drive, size, listener, gid)
+    all_limit = config_dict['QUEUE_ALL']
+    dl_limit = config_dict['QUEUE_DOWNLOAD']
+    if all_limit or dl_limit:
+        added_to_queue = False
+        with queue_dict_lock:
+            dl = len(non_queued_dl)
+            up = len(non_queued_up)
+            if (all_limit and dl + up >= all_limit and (not dl_limit or dl >= dl_limit)) or (dl_limit and dl >= dl_limit):
+                added_to_queue = True
+                queued_dl[listener.uid] = ['gd', link, path, listener, newname, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive, is_filepress]
+        if added_to_queue:
+            LOGGER.info(f"Added to Queue/Download: {name}")
+            with download_dict_lock:
+                download_dict[listener.uid] = QueueStatus(name, size, gid, listener, 'Dl')
+            listener.onDownloadStart()
+            sendStatusMessage(listener.message, listener.bot)
+            return
+    drive = GoogleDriveHelper(name, path, size, listener)
     with download_dict_lock:
-        download_dict[listener.uid] = download_status
-    listener.onDownloadStart()
-    sendStatusMessage(listener.message, listener.bot)
-    drive.download(link)
-    if (is_gdtot or is_unified or is_udrive or is_sharer or is_sharedrive):
-        drive.deletefile(link)
+        download_dict[listener.uid] = GdDownloadStatus(drive, size, listener, gid)
+    with queue_dict_lock:
+        non_queued_dl.add(listener.uid)
+    if not from_queue:
+        LOGGER.info(f"Download from GDrive: {name}")
+        listener.onDownloadStart()
+        sendStatusMessage(listener.message, listener.bot)
+        drive.download(link)
+        if (is_gdtot or is_unified or is_udrive or is_sharer or is_sharedrive):
+            drive.deletefile(link)
+    else:
+        LOGGER.info(f'Start Queued Download from GDrive: {name}')
+
  
