@@ -21,6 +21,7 @@ from bot.helper.telegram_helper import button_build
 qb_download_lock = Lock()
 STALLED_TIME = {}
 STOP_DUP_CHECK = set()
+LIMITS_CHECK = set()
 RECHECKED = set()
 UPLOADED = set()
 SEEDING = set()
@@ -225,13 +226,13 @@ def __check_limits(client, tor):
         if config_dict['PAID_SERVICE'] is True:
             mssg += f'\n#Buy Paid Service'
         __onDownloadError(mssg, client, tor)
-    elif not listener.isLeech: msize = getdailytasks(user_id, upmirror=size, check_mirror=True); LOGGER.info(f"User : {user_id} Daily Mirror Size : {get_readable_file_size(msize)}")
+    elif not listener.isLeech: msize = getdailytasks(user_id, upmirror=size, check_mirror=True); LOGGER.info(f"User : {user_id} | Daily Mirror Size : {get_readable_file_size(msize)}")
     if DAILY_LEECH_LIMIT and listener.isLeech and user_id != OWNER_ID and not is_sudo(user_id) and not is_paid(user_id) and (size >= (DAILY_LEECH_LIMIT - getdailytasks(user_id, check_leech=True)) or DAILY_LEECH_LIMIT <= getdailytasks(user_id, check_leech=True)):
         mssg = f'Daily Leech Limit is {get_readable_file_size(DAILY_LEECH_LIMIT)}\nYou have exhausted all your Daily Leech Limit or File Size of your Leech is greater than your free Limits.\nTRY AGAIN TOMORROW'
         if config_dict['PAID_SERVICE'] is True:
             mssg += f'\n#Buy Paid Service'
         __onDownloadError(mssg, client, tor)
-    elif listener.isLeech: lsize = getdailytasks(user_id, upleech=size, check_leech=True); LOGGER.info(f"User : {user_id} Daily Leech Size : {get_readable_file_size(lsize)}")
+    elif listener.isLeech: lsize = getdailytasks(user_id, upleech=size, check_leech=True); LOGGER.info(f"User : {user_id} | Daily Leech Size : {get_readable_file_size(lsize)}")
 
 @new_thread
 def __onDownloadComplete(client, tor):
@@ -283,7 +284,9 @@ def __qb_listener():
                     if config_dict['STOP_DUPLICATE'] and tor_info.hash not in STOP_DUP_CHECK:
                         STOP_DUP_CHECK.add(tor_info.hash)
                         __stop_duplicate(client, tor_info)
-                    __check_limits(client, tor_info)
+                    if (config_dict['TORRENT_DIRECT_LIMIT'] or config_dict['ZIP_UNZIP_LIMIT'] or config_dict['LEECH_LIMIT'] or config_dict['STORAGE_THRESHOLD'] or config_dict['DAILY_MIRROR_LIMIT'] or config_dict['DAILY_LEECH_LIMIT']) and tor_info.hash not in LIMITS_CHECK:
+                        LIMITS_CHECK.add(tor_info.hash)
+                        __check_limits(client, tor_info)
                 elif tor_info.state == "stalledDL":
                     TORRENT_TIMEOUT = config_dict['TORRENT_TIMEOUT']
                     if tor_info.hash not in RECHECKED and 0.99989999999999999 < tor_info.progress < 1:

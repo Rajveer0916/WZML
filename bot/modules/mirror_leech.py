@@ -1,4 +1,5 @@
 from base64 import b64encode
+from requests import get as rget
 from pyrogram import enums
 from re import match as re_match, search as re_search, split as re_split
 from time import sleep, time
@@ -242,7 +243,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
         return reply_message
 
     LOGGER.info(f"Link: {link}")
-    LOGGER.info(shwbtns)
+    extras[0] = link 
     if ((len(CATEGORY_NAMES) > 1 and len(CATUSR) == 0) or (len(CATEGORY_NAMES) >= 1 and len(CATUSR) > 1)) and not isLeech and shwbtns:
         btn_listener[msg_id] = [catlistener, extras, timeout]
         text, btns = get_category_buttons('mir', timeout, msg_id, c_index, u_index, user_id)

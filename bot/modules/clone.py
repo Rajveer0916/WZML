@@ -99,7 +99,7 @@ def _clone(message, bot):
                         shwbtns = False
                         c_index = ltds.index(dname.lower())
             elif x.isdigit():
-                multi = int(link)
+                multi = int(x)
                 mi = index
                 link = ''
         if multi == 0:
@@ -135,7 +135,7 @@ def _clone(message, bot):
     if multi > 1:
         sleep(4)
         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
-        cmsg = message.text.split()
+        cmsg = message.text.split(maxsplit=mi+1)
         cmsg[mi] = f"{multi - 1}"
         nextmsg = sendMessage(" ".join(cmsg), bot, nextmsg)
         nextmsg.from_user.id = message.from_user.id

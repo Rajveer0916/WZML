@@ -168,9 +168,9 @@ def forcesub(bot, message, tag):
         btn = ButtonMaker()
         for key, value in join_button.items():
             btn.buildbutton(key, value)
-            msg = f'💡 {tag},\nYou have to join our channel!\n🔻 Join And Try Again!'
-            reply_message = sendMessage(msg, bot, message, btn.build_menu(2))
-            return reply_message
+        msg = f'💡 {tag},\nYou have to join our channel(s)!\n🔻 Join And Try Again!'
+        reply_message = sendMessage(msg, bot, message, btn.build_menu(1))
+        return reply_message
 
 
 def isAdmin(message, user_id=None):
