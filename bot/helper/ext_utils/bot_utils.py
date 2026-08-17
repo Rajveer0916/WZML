@@ -586,7 +586,7 @@ def bot_sys_stats():
         if stats.status() == MirrorStatus.STATUS_SPLITTING:
             num_split += 1
     return f"""
-Made with ❤️ by {config_dict['CREDIT_NAME']}
+Made with ❤️ by Ajay
 
 Tasks: {tasks}
 
